@@ -1,0 +1,26 @@
+# Terraform state — NEVER commit
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+crash.*.log
+
+# Lock file — COMMIT this one (tracks provider versions)
+# .terraform.lock.hcl  ← intentionally NOT ignored
+
+# Real variable values — NEVER commit
+terraform.tfvars
+*.auto.tfvars
+
+# Sensitive outputs
+kubeconfig*
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
