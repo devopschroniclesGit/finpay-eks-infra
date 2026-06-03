@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Copy this file to terraform.tfvars and fill in real values
+# NEVER commit terraform.tfvars to Git
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Core ──────────────────────────────────────────────────────────────────────
+aws_region  = "us-east-1"
+environment = "production"
+app_name    = "finpay"
+
+# ── EKS ───────────────────────────────────────────────────────────────────────
+eks_node_instance_type = "t3.xlarge"
+eks_node_min_size      = 2
+eks_node_max_size      = 5
+eks_node_desired_size  = 3
+
+# ── RDS ───────────────────────────────────────────────────────────────────────
+db_instance_class    = "db.t3.medium"
+db_name              = "finpay_db"
+db_username          = "finpay_user"
+db_password          = "CHANGE_ME_strong_password_here"
+db_engine_version    = "15.4"
+db_allocated_storage = 20
+
+# ── ElastiCache ───────────────────────────────────────────────────────────────
+redis_node_type = "cache.t3.micro"
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+# Generate JWT secret:
+# node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+jwt_secret        = "CHANGE_ME_minimum_64_chars"
+rabbitmq_password = "CHANGE_ME_rabbitmq_password"
+grafana_admin_password = "CHANGE_ME_grafana_password"
+
+# ── GitHub ────────────────────────────────────────────────────────────────────
+github_repo   = "your-org/finpay-api"
+github_branch = "main"
