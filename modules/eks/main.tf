@@ -81,6 +81,11 @@ resource "aws_iam_role_policy_attachment" "vpc_controller" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
 }
 
+resource "aws_iam_role_policy_attachment" "ebs_csi_policy" {
+  role       = aws_iam_role.node.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+}
+
 # ── IAM — Node role ───────────────────────────────────────────────────────────
 
 resource "aws_iam_role" "node" {
@@ -226,11 +231,4 @@ resource "aws_eks_addon" "vpc_cni" {
   cluster_name                = aws_eks_cluster.finpay.name
   addon_name                  = "vpc-cni"
   resolve_conflicts_on_create = "OVERWRITE"
-}
-
-resource "aws_eks_addon" "ebs_csi" {
-  cluster_name                = aws_eks_cluster.finpay.name
-  addon_name                  = "aws-ebs-csi-driver"
-  resolve_conflicts_on_create = "OVERWRITE"
-  depends_on                  = [aws_eks_node_group.finpay]
 }

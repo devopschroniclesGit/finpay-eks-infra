@@ -2,7 +2,7 @@
 
 resource "aws_security_group" "redis" {
   name        = "${var.app_name}-redis-sg"
-  description = "FinPay Redis — allow inbound from EKS nodes only"
+  description = "FinPay Redis allow inbound from EKS nodes only"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -27,7 +27,7 @@ resource "aws_security_group" "redis" {
 
 resource "aws_elasticache_subnet_group" "finpay" {
   name        = "${var.app_name}-redis-subnet-group"
-  description = "FinPay Redis subnet group — data subnets"
+  description = "FinPay Redis subnet group - data subnets"
   subnet_ids  = var.data_subnet_ids
 }
 
@@ -47,7 +47,7 @@ resource "aws_elasticache_parameter_group" "finpay" {
 
 resource "aws_elasticache_replication_group" "finpay" {
   replication_group_id = "${var.app_name}-redis"
-  description          = "FinPay Redis — rate limiting and caching"
+  description          = "FinPay Redis rate limiting and caching"
 
   node_type            = var.redis_node_type
   num_cache_clusters   = 1      # Single node for demo — set to 2+ for HA

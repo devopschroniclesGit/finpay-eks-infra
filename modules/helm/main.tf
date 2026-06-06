@@ -156,6 +156,9 @@ resource "helm_release" "rabbitmq" {
   create_namespace = true
   version    = "12.6.0"
 
+  timeout = 600
+  wait    = true
+
   values = [<<-YAML
     auth:
       username: finpay
@@ -192,7 +195,7 @@ resource "helm_release" "rabbitmq" {
     metrics:
       enabled: true
       serviceMonitor:
-        enabled: true
+        enabled: false
   YAML
   ]
 
@@ -209,7 +212,8 @@ resource "helm_release" "prometheus_stack" {
   create_namespace = true
   version    = "57.0.1"
 
-  timeout = 600   # Stack takes ~5 minutes to come up
+  timeout = 900   # Stack takes ~5 minutes to come up
+  wait 	  = true
 
   values = [<<-YAML
     grafana:

@@ -2,7 +2,7 @@
 
 resource "aws_security_group" "rds" {
   name        = "${var.app_name}-rds-sg"
-  description = "FinPay RDS — allow inbound from EKS nodes only"
+  description = "FinPay RDS allow inbound from EKS nodes only"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -27,7 +27,7 @@ resource "aws_security_group" "rds" {
 
 resource "aws_db_subnet_group" "finpay" {
   name        = "${var.app_name}-db-subnet-group"
-  description = "FinPay RDS subnet group — data subnets, no internet route"
+  description = "FinPay RDS subnet group data subnets, no internet route"
   subnet_ids  = var.data_subnet_ids
 
   tags = { Name = "${var.app_name}-db-subnet-group" }
