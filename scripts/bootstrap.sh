@@ -1,26 +1,31 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
 # bootstrap.sh — Run ONCE before terraform init
-# Creates the S3 bucket + DynamoDB table for remote Terraform state
+# Creates the S3 bucket for remote Terraform state
+# Note: DynamoDB locking removed — we use use_lockfile = true (S3 native locking)
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
 REGION="us-east-1"
 BUCKET="finpay-eks-terraform-state"
-TABLE="finpay-eks-terraform-locks"
+
+# ── Sync clock first (prevents AWS signature errors) ─────────────────────────
+echo "→ Syncing clock..."
+sudo chronyc makestep
+echo "  ✓ Clock synced: $(date)"
+
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
+echo ""
 echo "─────────────────────────────────────────────"
 echo " FinPay EKS — Terraform Bootstrap"
 echo " Account : $ACCOUNT_ID"
 echo " Region  : $REGION"
 echo " Bucket  : $BUCKET"
-echo " Table   : $TABLE"
 echo "─────────────────────────────────────────────"
 
 # ── S3 Bucket ─────────────────────────────────────────────────────────────────
-
 echo ""
 echo "→ Creating S3 bucket for Terraform state..."
 
@@ -28,7 +33,7 @@ aws s3api create-bucket \
   --bucket "$BUCKET" \
   --region "$REGION" 2>/dev/null || echo "  Bucket already exists — skipping"
 
-# Enable versioning so we can recover previous states
+# Enable versioning
 aws s3api put-bucket-versioning \
   --bucket "$BUCKET" \
   --versioning-configuration Status=Enabled
@@ -52,22 +57,13 @@ aws s3api put-public-access-block \
 
 echo "  ✓ S3 bucket ready: s3://$BUCKET"
 
-# ── DynamoDB Table (state locking) ────────────────────────────────────────────
-
+# ── Verify AWS credentials work ───────────────────────────────────────────────
 echo ""
-echo "→ Creating DynamoDB table for state locking..."
-
-aws dynamodb create-table \
-  --table-name "$TABLE" \
-  --attribute-definitions AttributeName=LockID,AttributeType=S \
-  --key-schema AttributeName=LockID,KeyType=HASH \
-  --billing-mode PAY_PER_REQUEST \
-  --region "$REGION" 2>/dev/null || echo "  Table already exists — skipping"
-
-echo "  ✓ DynamoDB table ready: $TABLE"
+echo "→ Verifying AWS credentials..."
+aws sts get-caller-identity --output table
+echo "  ✓ Credentials valid"
 
 # ── Done ──────────────────────────────────────────────────────────────────────
-
 echo ""
 echo "─────────────────────────────────────────────"
 echo " Bootstrap complete. Now run:"
@@ -76,5 +72,6 @@ echo "   cp terraform.tfvars.example terraform.tfvars"
 echo "   # fill in real values in terraform.tfvars"
 echo "   terraform init"
 echo "   terraform plan"
-echo "   terraform apply"
+echo "   terraform apply --auto-approve"
+echo "   GRAFANA_PASSWORD=FinPay@Graf2024! bash scripts/post-apply.sh"
 echo "─────────────────────────────────────────────"
