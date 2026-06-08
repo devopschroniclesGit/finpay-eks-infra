@@ -72,7 +72,7 @@ echo ""
 echo "→ Step 5: Force deleting ECR repositories..."
 for repo in finpay-auth finpay-account finpay-transaction finpay-notification \
             finpay-api finpay-web finpay-rabbitmq; do
-  aws ecr delete-repository \
+  # aws ecr delete-repository \
     --repository-name $repo \
     --force \
     --region $REGION 2>/dev/null && echo "  Deleted $repo" || true
